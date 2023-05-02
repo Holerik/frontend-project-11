@@ -9,6 +9,9 @@ const rss = {
   },
   set feeds(data) {
     urls = data.slice();
+  },
+  get length() {
+    return urls.length;
   }
 };
 
@@ -27,6 +30,7 @@ const getErrDescrs = () => errDescrs;
 const setError = (key, error) => {
   errors[key] = error;
 };
+
 const getErrors = () => errors;
 
 export { getErrDescrs, rss, setError, getErrors };

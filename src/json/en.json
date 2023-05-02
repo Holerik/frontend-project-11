@@ -1,0 +1,16 @@
+{
+  "test_message": "This is a test message",
+  "link": "Link",
+  "prompt": "Start reading RSS today! It's easy, it's beautiful.",
+  "aggregator": "aggregator",
+  "example": "Example",
+  "add": "Add",
+  "posts": "Posts",
+  "feeds": "Feeds",
+  "viewing": "Viewing",
+  "url_present": "An RSS-feed with this URL already exists",
+  "abs_address": "An absolute address is required: see example",
+  "valid_address": "The address must point to an rss resource",
+  "valid_url": "The RSS-feed must comply with the URL specification",
+  "not_empty": "The RSS-feed line should not be empty"
+}
