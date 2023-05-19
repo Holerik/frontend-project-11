@@ -12,5 +12,8 @@
   "abs_address": "An absolute address is required: see example",
   "valid_address": "The address must point to an rss resource",
   "valid_url": "The RSS-feed must comply with the URL specification",
-  "not_empty": "The RSS-feed line should not be empty"
+  "not_empty": "The RSS-feed line should not be empty",
+  "no_response": "Request was made but no response was received",
+  "success": "Download completed",
+  "proxy": "Use hexlet proxy server"
 }

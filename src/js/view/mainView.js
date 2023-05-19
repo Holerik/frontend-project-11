@@ -24,6 +24,10 @@ const mainView = () => (
               </button>
             </div>
           </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="proxy-check" checked>
+            <label class="form-check-label  text-muted" for="proxy-check">${tr('proxy')}</label>
+          </div>
         </form>
         <p class="mt-2 mb-0 text-muted">${tr('example')}: https://ru.hexlet.io/lessons.rss</p>
         <div id="url-error"></div>

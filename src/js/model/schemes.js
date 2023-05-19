@@ -13,7 +13,7 @@ yup.addMethod(yup.array, 'unique', function(message) {
       return true;
     }
     const idx = list?.findIndex((l, i) => mapper(l) !== set[i]);
-    console.log('index: ', idx, 'msg: ', message);
+    // console.log('index: ', idx, 'msg: ', message);
     return this.createError({ path: `urls[${idx}]`, message });
   });
 });
@@ -29,15 +29,13 @@ function addMetod(mehtodName, testStr) {
   });
 };
 
-addMetod('https', 'http');
-addMetod('rss', 'rss');
+addMetod('https', 'https');
 
 const urlSchema = yup.object().shape({
   url: yup.string()
   .url(tr('valid_url'))
   // @ts-ignore
   .https(tr('abs_address'))
-  .rss(tr('valid_address'))
   .required(),
 });
 

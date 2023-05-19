@@ -1,27 +1,38 @@
 // @ts-check
 import { tr } from '../locale/locale.js';
 
-const getFeedList = (data) => (
+const genFeedItem = (href, info, id) => (
   `
-  <li class="list-group-item border-0 border-end-0">
-    <h3 class="h6 m-0">Новые уроки на Хекслете</h3>
-    <p class="m-0 small text-black-50">Практические уроки по программированию</p>
+  <li class="list-group-item border-0 border-end-0 feed-link" id="${id}">
+    <a href=${href}>${info}</a>
   </li>
   `
 );
 
-const getPostList = (data) => (
-  `
-  <li class="list-group-item d-flex justify-content-between align-items-start border-0 border-end-0">
-    <a href="#" class="fw-normal link-secondary" data-id="2" target="_blank" rel="noopener noreferrer">Группировка по выборке / Основы SQL</a>
-    <button type="button" class="btn btn-outline-primary btn-sm" data-id="2" data-bs-toggle="modal" data-bs-target="#modal">${tr('viewing')}</button>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-start border-0 border-end-0">
-    <a href="#" class="fw-normal link-secondary" data-id="3" target="_blank" rel="noopener noreferrer">Уникальные строки / Основы SQL</a>
-    <button type="button" class="btn btn-outline-primary btn-sm" data-id="3" data-bs-toggle="modal" data-bs-target="#modal">${tr('viewing')}</button>
-  </li>
-  `
+const getFeedList = (feedsList) => {
+  let res = ``;
+  feedsList.forEach((feed) => {
+    res += genFeedItem(feed.url, feed.title, feed.guid);
+  });
+  return res;
+};
+
+const genPostItem = (href, info) => (
+`
+<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-end-0">
+<p class="fw-normal" data-id="3" target="_blank" rel="noopener noreferrer">${info}</p>
+<a href=${href} type="button" class="btn btn-outline-primary btn-sm" data-id="3" data-bs-toggle="modal" data-bs-target="#modal">${tr('viewing')}</a>
+</li>
+`
 );
+
+const getPostList = (postsList) => {
+  let res = ``;
+  postsList.forEach((post) => {
+    res += genPostItem(post.href, post.title);
+  });
+  return res;
+};
 
 const getFeedContainer = () => (
   `
@@ -44,4 +55,3 @@ const getFeedContainer = () => (
 );
 
 export { getFeedContainer, getFeedList, getPostList };
-
