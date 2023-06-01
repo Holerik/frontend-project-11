@@ -1,10 +1,12 @@
-// @ts-check
+// @ts-ignore
 import { tr } from '../locale/locale.js';
+import _ from 'lodash';
+import { selectFeed } from '../controller/controller.js';
 
 const genFeedItem = (href, info, id) => (
   `
-  <li class="list-group-item border-0 border-end-0 feed-link" id="${id}">
-    <a href=${href}>${info}</a>
+  <li class="list-group-item border-0 border-end-0 feed-link">
+    <a href="#" class="fs-4 fst-italic" data-id=${id}>${info}</a>
   </li>
   `
 );
@@ -17,11 +19,11 @@ const getFeedList = (feedsList) => {
   return res;
 };
 
-const genPostItem = (href, info) => (
+const genPostItem = (href, info, guid, read) => (
 `
 <li class="list-group-item d-flex justify-content-between align-items-start border-0 border-end-0">
-<p class="fw-normal" data-id="3" target="_blank" rel="noopener noreferrer">${info}</p>
-<a href=${href} type="button" class="btn btn-outline-primary btn-sm" data-id="3" data-bs-toggle="modal" data-bs-target="#modal">${tr('viewing')}</a>
+  <a href=${href} class=${read ? "fw-normal" : "fw-bold"} id=${guid} target="_blank" rel="noopener noreferrer">${info}</a>
+  <button data-id=${guid} type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#postInfoModal">${tr('viewing')}</button>
 </li>
 `
 );
@@ -29,12 +31,12 @@ const genPostItem = (href, info) => (
 const getPostList = (postsList) => {
   let res = ``;
   postsList.forEach((post) => {
-    res += genPostItem(post.href, post.title);
+    res += genPostItem(post.href, post.title, post.guid, post.read);
   });
   return res;
 };
 
-const getFeedContainer = () => (
+const getFeedContainerElements = () => (
   `
   <div class="row">
     <div class="col-md-10 col-lg-8 order-1 mx-auto posts">
@@ -54,4 +56,4 @@ const getFeedContainer = () => (
   `
 );
 
-export { getFeedContainer, getFeedList, getPostList };
+export { getFeedContainerElements, getFeedList, getPostList };

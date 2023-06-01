@@ -1,8 +1,8 @@
-// @ts-check
+// @ts-ignore
 import  '../../css/styles.css';
 import onChange from 'on-change';
 import { urlSchema, urlsSchema } from '../model/schemes.js';
-import { getErrDescrs, rss, setError, getErrors, addRSSFeed } from '../model/model.js';
+import { getErrDescrs, rss, setError, getErrors, addRSSFeed, cleanPostsList, genPostsListHTML } from '../model/model.js';
 import { tr } from '../locale/locale.js';
 
 // контролируемый 'вотчером' объект
@@ -21,7 +21,7 @@ const removeErrorMessages = (key) => {
   while(div?.firstChild) {
     div.removeChild(div.firstChild);
   }
-}
+};
 
 const validateValue = (key, value) => {
   setError(key, '');
@@ -32,7 +32,6 @@ const validateValue = (key, value) => {
     temp.push(result.url);
     // проверим поток на дублирование
     urlsSchema.validate({ urls: temp }, { abortEarly: false})
-    // @ts-ignore
     .then(() => 
       // список RSS-потоков пополнился новым фидом
       addRSSFeed(result.url)
@@ -40,12 +39,11 @@ const validateValue = (key, value) => {
     .catch((reason) => setError(key, reason.inner[0].errors[0]));
   })
   .catch((reason) => setError(key, reason.inner[0].errors[0]));
-}
+};
 
 const watchedState = onChange(state, (path, value, prevValue) => {
   const key = path.slice(0, path.indexOf('.'));
   if (path === 'url-input.value') {
-    // @ts-ignore
     if (value.length === 0) {
       removeErrorMessages(key);
       setError(key, tr('not_empty'));
@@ -54,7 +52,6 @@ const watchedState = onChange(state, (path, value, prevValue) => {
       validateValue(key, value);
     }
   } else if (path === 'proxy-check.proxy') {
-    // @ts-ignore
     rss.proxy = value;
   }
 });
@@ -62,18 +59,16 @@ const watchedState = onChange(state, (path, value, prevValue) => {
 const setWatcher = () => {
   const input = document.getElementById('url-input');
   input?.addEventListener('change', (evt) => {
-    // @ts-ignore
     const value = evt.target?.value;
     watchedState['url-input'].value = value;
   });
   const check = document.getElementById('proxy-check');
   check?.addEventListener('change', (evt) => {
-    // @ts-ignore
     const value = evt.target?.checked;
     watchedState['proxy-check'].proxy = value > 0;
     watchedState['url-input'].value = '';
   })
-}
+};
 
 const setMessage = (key, error = true) => {
   const ctrl = document.getElementById(key);
@@ -93,7 +88,7 @@ const setMessage = (key, error = true) => {
     // нарисуем красную рамку вокруг элемента
     ctrl?.classList.add('border-red');
   }
-}
+};
 
 const handleFormSubmit = (evt) => {
   evt.preventDefault();
@@ -116,11 +111,9 @@ const handleFormSubmit = (evt) => {
   });
   if (!isError) {
     const ctrl = document.getElementById('url-input');
-    // @ts-ignore
     if (ctrl.value.length > 0) {
       // ошибок нет, уберем красную рамку
       // и очистим поле ввода
-      // @ts-ignore
       ctrl.value = '';
       ctrl?.classList.remove('border-red');
       ctrl?.focus();
@@ -130,6 +123,41 @@ const handleFormSubmit = (evt) => {
       setMessage('url-input');
     }
   }
-}
+};
 
-export { handleFormSubmit, setWatcher, setMessage };
+const setModalInfo = () => {
+  const modalDlg = document.getElementById('postInfoModal');
+  modalDlg?.addEventListener('show.bs.modal', (evt) => {
+    const guid = evt.relatedTarget.dataset.id;
+    const feed = rss.feeds[rss.currFeed];
+    const post = feed.posts.filter((post) => post.guid === guid)[0];
+    document.getElementById('modal-body-title').textContent = post.title;
+    document.getElementById('modal-body-descr').textContent = post.descr;
+    document.getElementById('modal-header').textContent = feed.title;
+    const elem = document.getElementById(guid);
+    if (elem?.classList.contains('fw-bold')) {
+      elem?.classList.remove('fw-bold');
+      elem?.classList.add('fw-normal');
+      post.read = true;
+    }
+  })
+};
+
+const handleSelectFeed = (evt) => {
+  const guid = evt.target.dataset.id;
+  const selFeed = rss.feeds.findIndex((feed) => feed.guid === guid);
+  if (selFeed !== rss.currFeed) {
+    rss.currFeed = selFeed;
+    cleanPostsList();
+    genPostsListHTML(rss.feeds[rss.currFeed].posts);
+  }
+};
+
+const setHandlesForFeedList = () => {
+  const feedElements = document.getElementsByClassName('feed-link');
+  for (const elem of feedElements) {
+    elem.addEventListener('click', handleSelectFeed);
+  }
+};
+
+export { handleFormSubmit, setWatcher, setMessage, setModalInfo, setHandlesForFeedList };

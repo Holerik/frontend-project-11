@@ -1,6 +1,6 @@
-// @ts-check
+// @ts-ignore
 import axios from 'axios';
-import { setMessage } from '../controller/controller.js';
+import { setMessage, setHandlesForFeedList } from '../controller/controller.js';
 import { tr } from '../locale/locale.js';
 import { getFeedList, getPostList } from '../view/feedsView.js';
 import _ from 'lodash';
@@ -65,6 +65,15 @@ const checkFeedsState = (feeds, index, currFeed) =>
   });
 }
 
+/**
+ * Функция запускает проверку добаленных потоков на предмет новых постов
+ * @param {number} timeOut задержка в милисекундах
+ */
+const timerFeedsCheck = (timeOut  = rssCheckPeriod) => {
+  setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
+  console.log('set timer to feed check');
+};
+
 // сообщения об ошибках для елемента
 const errors = {
   ['url-input']: '',
@@ -114,6 +123,31 @@ const cleanPostsList = () => {
 };
 
 /**
+ * Очистка списка фидов перед изменением текущего фида
+ */
+const cleanFeedsList = () => {
+  const feedList = document.getElementById('feed-list');
+  while(feedList?.firstChild) {
+    feedList.removeChild(feedList.firstChild);
+  }
+};
+
+/**
+ * 
+ * @param {DOMParser} parser
+ * @param {string} description описание поста в виде элемента <div>...</div>
+ * @returns текстовую часть элемента <p>...</p>
+ */
+const parseDescription = (parser, description) => {
+  const doc = parser.parseFromString(description.textContent, 'text/html');
+  const items = doc.getElementsByTagName('p');
+  if (items.length === 0) {
+    return doc.body.textContent;
+  }
+  return items[0].textContent;
+};
+
+/**
  * 
  * @param {string} url адрес фида
  * @param {string} contents содержимое фида
@@ -129,7 +163,6 @@ const parseRSSFeed = (url, contents) => {
     descr: '',
     posts: [],
     get urls() {
-      // @ts-ignore
       return this.posts.map((post) => post.href);
     },
   };
@@ -141,12 +174,13 @@ const parseRSSFeed = (url, contents) => {
   const items = channel.getElementsByTagName('item');
   for (const item of items) {
     // добаление постов в поток
-    // @ts-ignore
     feed.posts.push({
       guid: Guid.newGuid().toString(),
       feed_giud: feed.guid,
       title: getItemElementByTagName(item, 'title').textContent,
+      descr: parseDescription(parser, getItemElementByTagName(item, 'description')),
       href: getItemElementByTagName(item, 'link').textContent,
+      read: false,
     });
   };
   return feed;
@@ -167,7 +201,6 @@ const getFeed = (url) => {
       responseType: 'json',
     })
     .then((result) => {
-      // @ts-ignore
       const feed = parseRSSFeed(url, result.data.contents);
       resolve(feed);
     })
@@ -187,13 +220,13 @@ const addRSSFeed = (url) => {
   .then((feed) => {
     setError(key, tr('success'));
     setMessage(key, false);
-    // @ts-ignore
     rss.feeds.push(feed);
     rss.currFeed = rss.feeds.length - 1;
+    cleanFeedsList();
     genFeedsListHTML(rss.feeds);
     cleanPostsList();
     genPostsListHTML(feed.posts);
-    timerFeedsCheck();
+    setHandlesForFeedList();
   })
   .catch((error) => {
     if (error.response) {
@@ -207,12 +240,4 @@ const addRSSFeed = (url) => {
   }); 
 };
 
-/**
- * Функция запускает проверку добаленных потоков на предмет новых постов
- * @param {number} timeOut задержка в милисекундах
- */
-const timerFeedsCheck = (timeOut  = rssCheckPeriod) => {
-  setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
-};
-
-export { getErrDescrs, rss, setError, getErrors, addRSSFeed, timerFeedsCheck };
+export { getErrDescrs, rss, setError, getErrors, addRSSFeed, timerFeedsCheck, cleanPostsList, genPostsListHTML };
