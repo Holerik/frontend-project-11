@@ -25,6 +25,8 @@ const rss = {
   currFeed: 0,
 };
 
+const getItemElementByTagName = (item, name, index = 0) => item.getElementsByTagName(name)[index];
+
 /**
  * Отслеживание обновлений постов для добавленных rss-потоков
  * @param {array} feeds список потоков
@@ -38,6 +40,7 @@ const checkFeedsState = (feeds, index, currFeed) =>
     return;
   }
   const feed = feeds[index];
+  const parser = new DOMParser();
   // url-список постов фида
   const oldUrls = feed.urls;
   getFeed(feed.url)
@@ -48,11 +51,12 @@ const checkFeedsState = (feeds, index, currFeed) =>
     if (diffUrls.length > 0) {
       // список новых постов фида
       const newPosts = result.posts.filter((post) => diffUrls.indexOf(post.href) > -1);
-      feed.posts.push(newPosts);
-      console.log(feed.title, `:  ${newPosts.length} новых постов`);
+      for (const post of newPosts) {
+        feed.posts.push(post);
+      }
       if (index === currFeed) {
         // обновим список постов
-        genPostsListHTML(newPosts);
+        genPostsListHTML(newPosts, 'afterbegin');
       }
     } else {
       console.log(feed.title, ':  новых постов нет');
@@ -92,8 +96,6 @@ const setError = (key, error) => {
 
 const getErrors = () => errors;
 
-const getItemElementByTagName = (item, name, index = 0) => item.getElementsByTagName(name)[index];
-
 /**
  * Генерация HTML-списка добавленных постов
  * @param {Array} feeds список постов
@@ -106,10 +108,11 @@ const genFeedsListHTML = (feeds) => {
 /**
  * Генерация HTML-списка постов потока
  * @param {Array} posts список постов потока
+ * @param {string} position куда делать вставку
  */
-const genPostsListHTML = (posts) => {
+const genPostsListHTML = (posts, position = 'beforeend') => {
   const postListElem = document.getElementById('post-list');
-  postListElem?.insertAdjacentHTML('beforeend', getPostList(posts));
+  postListElem?.insertAdjacentHTML(position, getPostList(posts));
 };
 
 /**
@@ -148,6 +151,23 @@ const parseDescription = (parser, description) => {
 };
 
 /**
+ * Добаление поста в поток
+ * @param {DOMParser} parser
+ * @param {Object} feed фид
+ * @param {Object} post пост
+ */
+const addPostToFeed = (parser, feed, post) => {
+  feed.posts.push({
+    guid: Guid.newGuid().toString(),
+    feed_giud: feed.guid,
+    title: getItemElementByTagName(post, 'title').textContent,
+    descr: parseDescription(parser, getItemElementByTagName(post, 'description')),
+    href: getItemElementByTagName(post, 'link').textContent,
+    read: false,
+  });
+};
+
+/**
  * 
  * @param {string} url адрес фида
  * @param {string} contents содержимое фида
@@ -173,15 +193,7 @@ const parseRSSFeed = (url, contents) => {
   feed.descr = getItemElementByTagName(channel, 'description').textContent;
   const items = channel.getElementsByTagName('item');
   for (const item of items) {
-    // добаление постов в поток
-    feed.posts.push({
-      guid: Guid.newGuid().toString(),
-      feed_giud: feed.guid,
-      title: getItemElementByTagName(item, 'title').textContent,
-      descr: parseDescription(parser, getItemElementByTagName(item, 'description')),
-      href: getItemElementByTagName(item, 'link').textContent,
-      read: false,
-    });
+    addPostToFeed(parser, feed, item);
   };
   return feed;
 };
