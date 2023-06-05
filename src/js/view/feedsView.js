@@ -1,7 +1,7 @@
 // @ts-ignore
 import { tr } from '../locale/locale.js';
 import _ from 'lodash';
-import { selectFeed } from '../controller/controller.js';
+import { getState } from '../model/uistate.js';
 
 const genFeedItem = (href, info, id) => (
   `
@@ -19,10 +19,10 @@ const getFeedList = (feedsList) => {
   return res;
 };
 
-const genPostItem = (href, info, guid, read) => (
+const genPostItem = (href, info, guid, state) => (
 `
 <li class="list-group-item d-flex justify-content-between align-items-start border-0 border-end-0">
-  <a href=${href} class=${read ? "fw-normal" : "fw-bold"} id=${guid} target="_blank" rel="noopener noreferrer">${info}</a>
+  <a href=${href} class=${state ? "fw-normal" : "fw-bold"} id=${guid} target="_blank" rel="noopener noreferrer">${info}</a>
   <button data-id=${guid} type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#postInfoModal">${tr('viewing')}</button>
 </li>
 `
@@ -31,7 +31,8 @@ const genPostItem = (href, info, guid, read) => (
 const getPostList = (postsList) => {
   let res = ``;
   postsList.forEach((post) => {
-    res += genPostItem(post.href, post.title, post.guid, post.read);
+    const state = getState(post.feed_guid, post.guid);
+    res += genPostItem(post.href, post.title, post.guid, state);
   });
   return res;
 };

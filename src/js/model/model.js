@@ -5,6 +5,7 @@ import { tr } from '../locale/locale.js';
 import { getFeedList, getPostList } from '../view/feedsView.js';
 import _ from 'lodash';
 import { Guid } from 'js-guid';
+import { setState } from '../model/uistate.js';
 
 const rssCheckPeriod = 5000;
 
@@ -53,6 +54,7 @@ const checkFeedsState = (feeds, index, currFeed) =>
       const newPosts = result.posts.filter((post) => diffUrls.indexOf(post.href) > -1);
       for (const post of newPosts) {
         feed.posts.push(post);
+        setState(feed.guid, post.guid);
       }
       if (index === currFeed) {
         // обновим список постов
@@ -75,7 +77,6 @@ const checkFeedsState = (feeds, index, currFeed) =>
  */
 const timerFeedsCheck = (timeOut  = rssCheckPeriod) => {
   setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
-  console.log('set timer to feed check');
 };
 
 // сообщения об ошибках для елемента
@@ -126,7 +127,7 @@ const cleanPostsList = () => {
 };
 
 /**
- * Очистка списка фидов перед изменением текущего фида
+ * Очистка списка фидов
  */
 const cleanFeedsList = () => {
   const feedList = document.getElementById('feed-list');
@@ -136,10 +137,11 @@ const cleanFeedsList = () => {
 };
 
 /**
- * 
+ * Парсинг описания поста, если описание содержит элементы разметки
+ * или просто возврат содержимого описания в противном случае
  * @param {DOMParser} parser
- * @param {string} description описание поста в виде элемента <div>...</div>
- * @returns текстовую часть элемента <p>...</p>
+ * @param {string} description описание поста
+ * @returns текстовую часть описания
  */
 const parseDescription = (parser, description) => {
   const doc = parser.parseFromString(description.textContent, 'text/html');
@@ -148,23 +150,6 @@ const parseDescription = (parser, description) => {
     return doc.body.textContent;
   }
   return items[0].textContent;
-};
-
-/**
- * Добаление поста в поток
- * @param {DOMParser} parser
- * @param {Object} feed фид
- * @param {Object} post пост
- */
-const addPostToFeed = (parser, feed, post) => {
-  feed.posts.push({
-    guid: Guid.newGuid().toString(),
-    feed_giud: feed.guid,
-    title: getItemElementByTagName(post, 'title').textContent,
-    descr: parseDescription(parser, getItemElementByTagName(post, 'description')),
-    href: getItemElementByTagName(post, 'link').textContent,
-    read: false,
-  });
 };
 
 /**
@@ -191,9 +176,15 @@ const parseRSSFeed = (url, contents) => {
   feed.guid = Guid.newGuid().toString();
   feed.title = getItemElementByTagName(channel, 'title').textContent;
   feed.descr = getItemElementByTagName(channel, 'description').textContent;
-  const items = channel.getElementsByTagName('item');
-  for (const item of items) {
-    addPostToFeed(parser, feed, item);
+  const postItems = channel.getElementsByTagName('item');
+  for (const item of postItems) {
+    feed.posts.push({
+      guid: Guid.newGuid().toString(),
+      feed_guid: feed.guid,
+      title: getItemElementByTagName(item, 'title').textContent,
+      descr: parseDescription(parser, getItemElementByTagName(item, 'description')),
+      href: getItemElementByTagName(item, 'link').textContent,
+    });
   };
   return feed;
 };
@@ -234,6 +225,7 @@ const addRSSFeed = (url) => {
     setMessage(key, false);
     rss.feeds.push(feed);
     rss.currFeed = rss.feeds.length - 1;
+    feed.posts.forEach((post) => setState(feed.guid, post.guid));
     cleanFeedsList();
     genFeedsListHTML(rss.feeds);
     cleanPostsList();

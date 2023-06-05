@@ -4,6 +4,7 @@ import onChange from 'on-change';
 import { urlSchema, urlsSchema } from '../model/schemes.js';
 import { getErrDescrs, rss, setError, getErrors, addRSSFeed, cleanPostsList, genPostsListHTML } from '../model/model.js';
 import { tr } from '../locale/locale.js';
+import { setState } from '../model/uistate.js';
 
 // контролируемый 'вотчером' объект
 const state = {
@@ -138,7 +139,7 @@ const setModalInfo = () => {
     if (elem?.classList.contains('fw-bold')) {
       elem?.classList.remove('fw-bold');
       elem?.classList.add('fw-normal');
-      post.read = true;
+      setState(feed.guid, post.guid, true);
     }
   })
 };
