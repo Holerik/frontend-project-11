@@ -20,4 +20,4 @@ const feedContainerElem = document.getElementById('feed-container');
 feedContainerElem.insertAdjacentHTML('afterbegin', getFeedContainerElements());
 setWatcher();
 setModalInfo();
-//timerFeedsCheck();
+timerFeedsCheck();
