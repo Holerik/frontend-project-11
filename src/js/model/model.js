@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { Guid } from 'js-guid';
 import { setState } from '../model/uistate.js';
 
-const rssCheckPeriod = 5000;
+const rssCheckPeriod = 4900;
 
 /**
  * Список потоков
@@ -204,11 +204,12 @@ const getFeed = (url) => {
       responseType: 'json',
     })
     .then((result) => {
-      if (result.data.contents.includes('?xml') && !result.data.contents.includes('html')) {
+      if (result.data.contents.includes('<?xml')) {
         const feed = parseRSSFeed(url, result.data.contents);
         resolve(feed);
       } else {
         // ресурс не содержит RSS-контент
+        console.log(result.data.contents);
         throw({
           message: tr('valid_address'),
         });
