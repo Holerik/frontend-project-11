@@ -3,10 +3,11 @@ import { tr } from '../locale/locale.js';
 import _ from 'lodash';
 import { getState } from '../model/uistate.js';
 
-const genFeedItem = (href, info, id) => (
+const genFeedItem = (href, title, descr, id) => (
   `
   <li class="list-group-item border-0 border-end-0 feed-link">
-    <a href="#" class="fs-4 fst-italic" data-id=${id}>${info}</a>
+    <a href="#" class="fs-4 fst-italic" data-id=${id}>${title}</a>
+    <p class="fs-6 fst-normal">${descr}</p>
   </li>
   `
 );
@@ -14,7 +15,7 @@ const genFeedItem = (href, info, id) => (
 const getFeedList = (feedsList) => {
   let res = ``;
   feedsList.forEach((feed) => {
-    res += genFeedItem(feed.url, feed.title, feed.guid);
+    res += genFeedItem(feed.url, feed.title, feed.descr, feed.guid);
   });
   return res;
 };
