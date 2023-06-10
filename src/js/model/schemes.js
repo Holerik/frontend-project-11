@@ -13,7 +13,6 @@ yup.addMethod(yup.array, 'unique', function(message) {
       return true;
     }
     const idx = list?.findIndex((l, i) => mapper(l) !== set[i]);
-    // console.log('index: ', idx, 'msg: ', message);
     return this.createError({ path: `urls[${idx}]`, message });
   });
 });

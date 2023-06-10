@@ -61,7 +61,7 @@ const checkFeedsState = (feeds, index, currFeed) =>
         genPostsListHTML(newPosts, 'afterbegin');
       }
     } else {
-      console.log(feed.title, ':  новых постов нет');
+      console.log(feed.title, `:  ${tr('nothing_new')}`);
     }
     checkFeedsState(feeds, index + 1, currFeed);
   })
@@ -204,8 +204,15 @@ const getFeed = (url) => {
       responseType: 'json',
     })
     .then((result) => {
-      const feed = parseRSSFeed(url, result.data.contents);
-      resolve(feed);
+      if (result.data.contents.includes('?xml') && !result.data.contents.includes('html')) {
+        const feed = parseRSSFeed(url, result.data.contents);
+        resolve(feed);
+      } else {
+        // ресурс не содержит RSS-контент
+        throw({
+          message: tr('valid_address'),
+        });
+      }
     })
     .catch((error) => {
       reject(error);

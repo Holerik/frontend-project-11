@@ -15,5 +15,6 @@
   "not_empty": "The RSS-feed line should not be empty",
   "no_response": "Request was made but no response was received",
   "success": "Download completed",
-  "proxy": "Use hexlet proxy server"
+  "proxy": "Use hexlet proxy server",
+  "nothing_new": "there are no new posts"
 }
