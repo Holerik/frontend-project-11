@@ -2,20 +2,22 @@
 
 import i18next from 'i18next';
 import langDetector from 'i18next-browser-languagedetector';
+import ru from '../../json/ru.json';
+import en from '../../json/en.json';
 
 const ns = 'translation';
 
 export default () => {
   i18next
-  .use(langDetector)
-  .init({
-    resources: {},
-  });
+    .use(langDetector)
+    .init({
+      resources: {},
+    });
 
   i18next.addResources(
-    `${i18next.language.slice(0,2)}`,
+    `${i18next.language.slice(0, 2)}`,
     ns,
-    require(`../../json/${i18next.language.slice(0,2)}.json`),
+    i18next.language.slice(0, 2) === 'ru' ? ru : en,
   );
 };
 
@@ -27,9 +29,9 @@ const setLang = (lang) => {
     i18next.addResources(
       lang,
       ns,
-      require(`../../json/${lang}.json`),
+      lang === 'ru' ? ru : en,
     );
   }
-}
+};
 
 export { tr, setLang };

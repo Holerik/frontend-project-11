@@ -24,26 +24,26 @@ function addMetod(mehtodName, testStr) {
         return true;
       }
       return this.createError({ path: url, message });
-    })
+    });
   });
-};
+}
 
 addMetod('https', 'https');
 
 const urlSchema = yup.object().shape({
   url: yup.string()
-  .url(tr('valid_url'))
-  // @ts-ignore
-  .https(tr('abs_address'))
-  .required(),
+    .url(tr('valid_url'))
+    // @ts-ignore
+    .https(tr('abs_address'))
+    .required(),
 });
 
 const urlsSchema = yup.object().shape({
   urls: yup.array()
-  .of(yup.string())
-  .required()
-  // @ts-ignore
-  .unique(tr('url_present')),
+    .of(yup.string())
+    .required()
+    // @ts-ignore
+    .unique(tr('url_present')),
 });
 
 export { urlSchema, urlsSchema, addMetod };

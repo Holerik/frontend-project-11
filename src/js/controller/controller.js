@@ -1,19 +1,26 @@
 // @ts-ignore
-import  '../../css/styles.css';
+import '../../css/styles.css';
 import onChange from 'on-change';
 import { urlSchema, urlsSchema } from '../model/schemes.js';
-import { getErrDescrs, rss, setError, getErrors, addRSSFeed, cleanPostsList, genPostsListHTML } from '../model/model.js';
+import { rss, addRSSFeed } from '../model/model.js';
+import { cleanPostsList, genPostsListHTML } from '../view/feedsandposts.js';
+import {
+  setMessage,
+  getErrDescrs,
+  setError,
+  getErrors
+} from '../model/message.js';
 import { tr } from '../locale/locale.js';
 import { setState } from '../model/uistate.js';
 
 // контролируемый 'вотчером' объект
 const state = {
-  [`url-input`]: {
+  ['url-input']: {
     value: '',
   },
-  ['proxy-check'] : {
+  ['proxy-check']: {
     proxy: true,
-  }
+  },
 };
 
 const removeErrorMessages = (key) => {
@@ -27,22 +34,21 @@ const removeErrorMessages = (key) => {
 const validateValue = (key, value) => {
   setError(key, '');
   urlSchema.validate({ url: value }, { abortEarly: false })
-  .then((result) => {
-    const temp = rss.urls;
-    // добавим в список RSS-потоков новый фид
-    temp.push(result.url);
-    // проверим поток на дублирование
-    urlsSchema.validate({ urls: temp }, { abortEarly: false})
-    .then(() => 
-      // список RSS-потоков пополнился новым фидом
-      addRSSFeed(result.url)
-    )
+    .then((result) => {
+      const temp = rss.urls;
+      // добавим в список RSS-потоков новый фид
+      temp.push(result.url);
+      // проверим поток на дублирование
+      urlsSchema.validate({ urls: temp }, { abortEarly: false })
+        .then(() =>
+          // список RSS-потоков пополнился новым фидом
+          addRSSFeed(result.url))
+        .catch((reason) => setError(key, reason.inner[0].errors[0]));
+    })
     .catch((reason) => setError(key, reason.inner[0].errors[0]));
-  })
-  .catch((reason) => setError(key, reason.inner[0].errors[0]));
 };
 
-const watchedState = onChange(state, (path, value, prevValue) => {
+const watchedState = onChange(state, (path, value) => {
   const key = path.slice(0, path.indexOf('.'));
   if (path === 'url-input.value') {
     if (value.length === 0) {
@@ -68,27 +74,7 @@ const setWatcher = () => {
     const value = evt.target?.checked;
     watchedState['proxy-check'].proxy = value > 0;
     watchedState['url-input'].value = '';
-  })
-};
-
-const setMessage = (key, error = true) => {
-  const ctrl = document.getElementById(key);
-  const p = document.createElement('p');
-  p.classList.add(
-    error ? 'text-warning' : 'text-success',
-    'feedback' ,
-    'm-0',
-    'position-absolute',
-    'small'
-  );
-  p.textContent = getErrors()[key];
-  // добавим текущее сообщение об ошибке для элемента
-  const div = document.getElementById(getErrDescrs()[key]);
-  div?.appendChild(p);
-  if (error) {
-    // нарисуем красную рамку вокруг элемента
-    ctrl?.classList.add('border-red');
-  }
+  });
 };
 
 const handleFormSubmit = (evt) => {
@@ -141,7 +127,7 @@ const setModalInfo = () => {
       elem?.classList.add('fw-normal');
       setState(feed.guid, post.guid, true);
     }
-  })
+  });
 };
 
 const handleSelectFeed = (evt) => {
