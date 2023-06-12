@@ -40,4 +40,9 @@ const cleanFeedsList = () => {
   }
 };
 
-export {genFeedsListHTML, genPostsListHTML, cleanFeedsList, cleanPostsList};
+export {
+  genFeedsListHTML,
+  genPostsListHTML,
+  cleanFeedsList,
+  cleanPostsList
+};

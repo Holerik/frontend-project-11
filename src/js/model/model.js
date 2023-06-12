@@ -1,11 +1,11 @@
 // @ts-ignore
 import axios from 'axios';
-import { setHandlesForFeedList } from '../controller/controller.js';
-import { setMessage, setError } from '../model/message.js';
-import { tr } from '../locale/locale.js';
 import _ from 'lodash';
 import { Guid } from 'js-guid';
-import { setState } from '../model/uistate.js';
+import { setHandlesForFeedList } from '../controller/controller.js';
+import { setMessage, setError } from './message.js';
+import { tr } from '../locale/locale.js';
+import { setState } from './uistate.js';
 import { cleanFeedsList, cleanPostsList, genFeedsListHTML, genPostsListHTML } from '../view/feedsandposts.js';
 
 const rssCheckPeriod = 4900;
