@@ -1,11 +1,11 @@
 // @ts-check
 import * as yup from 'yup';
-import initLang, {tr} from '../locale/locale.js';
+import initLang, { tr } from '../locale/locale.js';
 
 initLang();
 
-yup.addMethod(yup.array, 'unique', function(message) {
-  return this.test('unique', message, function(list) {
+yup.addMethod(yup.array, 'unique', function (message) {
+  return this.test('unique', message, function (list) {
     const mapper = (x) => (x);
     const set = [...new Set(list?.map(mapper))];
     const isUnique = list?.length === set.length;
@@ -18,8 +18,8 @@ yup.addMethod(yup.array, 'unique', function(message) {
 });
 
 function addMetod(mehtodName, testStr) {
-  yup.addMethod(yup.string, mehtodName, function(message) {
-    return this.test(mehtodName, message, function(url) {
+  yup.addMethod(yup.string, mehtodName, function (message) {
+    return this.test(mehtodName, message, function (url) {
       if (url?.includes(testStr)) {
         return true;
       }

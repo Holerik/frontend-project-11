@@ -1,5 +1,6 @@
-//@ts-ignore
-import { getFeedList, getPostList } from '../view/feedsView.js';
+// @ts-ignore
+import { getFeedList, getPostList } from './feedsView.js';
+
 /**
  * Генерация HTML-списка добавленных постов
  * @param {Array} feeds список постов
@@ -24,7 +25,7 @@ const genPostsListHTML = (posts, position = 'beforeend') => {
  */
 const cleanPostsList = () => {
   const postList = document.getElementById('post-list');
-  while(postList?.firstChild) {
+  while (postList?.firstChild) {
     postList.removeChild(postList.firstChild);
   }
 };
@@ -34,9 +35,9 @@ const cleanPostsList = () => {
  */
 const cleanFeedsList = () => {
   const feedList = document.getElementById('feed-list');
-  while(feedList?.firstChild) {
+  while (feedList?.firstChild) {
     feedList.removeChild(feedList.firstChild);
   }
 };
 
-export { genFeedsListHTML, genPostsListHTML, cleanFeedsList, cleanPostsList };
+export {genFeedsListHTML, genPostsListHTML, cleanFeedsList, cleanPostsList};

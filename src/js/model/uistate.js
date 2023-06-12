@@ -18,7 +18,7 @@ import _ from 'lodash';
 const uiState = {
   feeds: [],
   addFeed(feedGuid) {
-    const feed = { guid: feedGuid, posts: [], };
+    const feed = { guid: feedGuid, posts: [] };
     this.feeds.push(feed);
     return feed;
   },
@@ -31,7 +31,7 @@ const uiState = {
   },
   addPost(feedGuid, postGuid) {
     const feed = this.getFeed(feedGuid);
-    const post = { guid: postGuid, state: false, };
+    const post = { guid: postGuid, state: false };
     feed.posts.push(post);
     return post;
   },

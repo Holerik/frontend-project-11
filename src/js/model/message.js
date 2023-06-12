@@ -38,4 +38,12 @@ const setMessage = (key, error = true) => {
   }
 };
 
-export { setMessage, setError, getErrDescrs, getErrors };
+const removeErrorMessages = (key) => {
+  const div = document.getElementById(getErrDescrs()[key]);
+  // удалим предыдущие сообщения об ошибке для элемента формы
+  while(div?.firstChild) {
+    div.removeChild(div.firstChild);
+  }
+};
+
+export { setMessage, setError, getErrDescrs, getErrors, removeErrorMessages };

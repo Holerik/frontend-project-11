@@ -6,9 +6,9 @@ import { rss, addRSSFeed } from '../model/model.js';
 import { cleanPostsList, genPostsListHTML } from '../view/feedsandposts.js';
 import {
   setMessage,
-  getErrDescrs,
   setError,
-  getErrors
+  getErrors,
+  removeErrorMessages
 } from '../model/message.js';
 import { tr } from '../locale/locale.js';
 import { setState } from '../model/uistate.js';
@@ -21,14 +21,6 @@ const state = {
   ['proxy-check']: {
     proxy: true,
   },
-};
-
-const removeErrorMessages = (key) => {
-  const div = document.getElementById(getErrDescrs()[key]);
-  // удалим предыдущие сообщения об ошибке для элемента формы
-  while(div?.firstChild) {
-    div.removeChild(div.firstChild);
-  }
 };
 
 const validateValue = (key, value) => {
@@ -147,4 +139,4 @@ const setHandlesForFeedList = () => {
   }
 };
 
-export { handleFormSubmit, setWatcher, setMessage, setModalInfo, setHandlesForFeedList };
+export { handleFormSubmit, setWatcher, setModalInfo, setHandlesForFeedList };

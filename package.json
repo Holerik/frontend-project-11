@@ -52,6 +52,7 @@
     "i18next": "^22.4.15",
     "i18next-browser-languagedetector": "^7.0.1",
     "js-guid": "^1.0.2",
+    "lodash": "^4.17.21",
     "needle": "^3.2.0",
     "on-change": "^4.0.2",
     "yup": "^1.1.1"
