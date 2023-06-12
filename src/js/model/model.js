@@ -75,7 +75,7 @@ const checkFeedsState = (feeds, index, currFeed) =>
  * Функция запускает проверку добаленных потоков на предмет новых постов
  * @param {number} timeOut задержка в милисекундах
  */
-const timerFeedsCheck = (timeOut  = rssCheckPeriod) => {
+const timerFeedsCheck = (timeOut = rssCheckPeriod) => {
   setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
 };
 

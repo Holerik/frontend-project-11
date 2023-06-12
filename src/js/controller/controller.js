@@ -13,16 +13,6 @@ import {
 import { tr } from '../locale/locale.js';
 import { setState } from '../model/uistate.js';
 
-// контролируемый 'вотчером' объект
-const state = {
-  ['url-input']: {
-    value: '',
-  },
-  ['proxy-check']: {
-    proxy: true,
-  },
-};
-
 const validateValue = (key, value) => {
   setError(key, '');
   urlSchema.validate({ url: value }, { abortEarly: false })
@@ -40,20 +30,30 @@ const validateValue = (key, value) => {
     .catch((reason) => setError(key, reason.inner[0].errors[0]));
 };
 
-const watchedState = onChange(state, (path, value) => {
-  const key = path.slice(0, path.indexOf('.'));
-  if (path === 'url-input.value') {
-    if (value.length === 0) {
-      removeErrorMessages(key);
-      setError(key, tr('not_empty'));
-      setMessage(key);
-    } else {
-      validateValue(key, value);
+const watchedState = onChange(
+  {
+    ['url-input']: {
+      value: '',
+    },
+    ['proxy-check']: {
+      proxy: true,
+    },
+  },
+  (path, value) => {
+    const key = path.slice(0, path.indexOf('.'));
+    if (path === 'url-input.value') {
+      if (value.length === 0) {
+        removeErrorMessages(key);
+        setError(key, tr('not_empty'));
+        setMessage(key);
+      } else {
+        validateValue(key, value);
+      }
+    } else if (path === 'proxy-check.proxy') {
+      rss.proxy = value;
     }
-  } else if (path === 'proxy-check.proxy') {
-    rss.proxy = value;
   }
-});
+);
 
 const setWatcher = () => {
   const input = document.getElementById('url-input');
