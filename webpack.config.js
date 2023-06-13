@@ -95,7 +95,7 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-        template: './src/index.html',
+      template: './src/index.html',
     }),
     // Add your plugins here
     // Learn more about plugins from https://webpack.js.org/configuration/plugins/
@@ -103,11 +103,11 @@ const config = {
 };
 
 module.exports = () => {
-    if (isProduction) {
-        config.mode = 'production';
-        // config.plugins.push(new WorkboxWebpackPlugin.GenerateSW());
-    } else {
-        config.mode = 'development';
-    }
-    return config;
+  if (isProduction) {
+    config.mode = 'production';
+    // config.plugins.push(new WorkboxWebpackPlugin.GenerateSW());
+  } else {
+    config.mode = 'development';
+  }
+  return config;
 };

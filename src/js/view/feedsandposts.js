@@ -44,5 +44,5 @@ export {
   genFeedsListHTML,
   genPostsListHTML,
   cleanFeedsList,
-  cleanPostsList
+  cleanPostsList,
 };

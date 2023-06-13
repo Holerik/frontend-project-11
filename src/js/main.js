@@ -4,8 +4,8 @@ import { handleFormSubmit, setWatcher, setModalInfo } from './controller/control
 import { getFeedContainerElements } from './view/feedsView.js';
 import getMainView from './view/mainView.js';
 import getFooterView from './view/footerView';
-import { timerFeedsCheck } from '../js/model/model.js';
-import genModalDialog from '../js/view/modalView.js';
+import { timerFeedsCheck } from './model/model.js';
+import genModalDialog from './view/modalView.js';
 
 const body = document.getElementById('body');
 body.insertAdjacentHTML('afterbegin', getMainView());

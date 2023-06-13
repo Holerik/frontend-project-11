@@ -6,7 +6,7 @@ import { setHandlesForFeedList } from '../controller/controller.js';
 import { setMessage, setError } from './message.js';
 import { tr } from '../locale/locale.js';
 import { setState } from './uistate.js';
-import { cleanFeedsList, cleanPostsList, genFeedsListHTML, genPostsListHTML } from '../view/feedsandposts.js';
+import {cleanFeedsList, cleanPostsList, genFeedsListHTML, genPostsListHTML } from '../view/feedsandposts.js';
 
 const rssCheckPeriod = 4900;
 
@@ -30,13 +30,52 @@ const rss = {
 const getItemElementByTagName = (item, name, index = 0) => item.getElementsByTagName(name)[index];
 
 /**
+ * Чтение данных потока и парсинг
+ * @param {string} url интернет-адрес потока
+ * @returns {Promise} распарсенный поток или ошибка
+ */
+const getFeed = (url) => {
+  return new Promise((resolve, reject) => {
+    axios({
+      method: 'get',
+      url: rss.proxy ?
+        `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}` :
+        url,
+      responseType: 'json',
+    })
+      .then((result) => {
+        if (result.data.contents.includes('<?xml')) {
+          const feed = parseRSSFeed(url, result.data.contents);
+          resolve(feed);
+        } else {
+          // ресурс не содержит RSS-контент
+          console.log(result.data.contents);
+          throw({
+            message: tr('valid_address'),
+          });
+        }
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+/**
+ * Функция запускает проверку добаленных потоков на предмет новых постов
+ * @param {number} timeOut задержка в милисекундах
+ */
+const timerFeedsCheck = (timeOut = rssCheckPeriod) => {
+  setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
+};
+
+/**
  * Отслеживание обновлений постов для добавленных rss-потоков
  * @param {array} feeds список потоков
  * @param {number} index  номер текущего потока
  * @param {number} currFeed номер потока, посты которого отображаются на странице
  */
-const checkFeedsState = (feeds, index, currFeed) =>
-{
+const checkFeedsState = (feeds, index, currFeed) => {
   if (index === feeds.length) {
     timerFeedsCheck();
     return;
@@ -69,14 +108,6 @@ const checkFeedsState = (feeds, index, currFeed) =>
       console.log(error.message);
       checkFeedsState(feeds, index + 1, currFeed);
     });
-};
-
-/**
- * Функция запускает проверку добаленных потоков на предмет новых постов
- * @param {number} timeOut задержка в милисекундах
- */
-const timerFeedsCheck = (timeOut = rssCheckPeriod) => {
-  setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
 };
 
 /**
@@ -130,38 +161,6 @@ const parseRSSFeed = (url, contents) => {
     });
   }
   return feed;
-};
-
-/**
- * Чтение данных потока и парсинг
- * @param {string} url интернет-адрес потока
- * @returns {Promise} распарсенный поток или ошибка
- */
-const getFeed = (url) => {
-  return new Promise((resolve, reject) => {
-    axios({
-      method: 'get',
-      url: rss.proxy ?
-        `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}` :
-        url,
-      responseType: 'json',
-    })
-      .then((result) => {
-        if (result.data.contents.includes('<?xml')) {
-          const feed = parseRSSFeed(url, result.data.contents);
-          resolve(feed);
-        } else {
-          // ресурс не содержит RSS-контент
-          console.log(result.data.contents);
-          throw({
-            message: tr('valid_address'),
-          });
-        }
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
 };
 
 /**

@@ -8,7 +8,7 @@ import {
   setMessage,
   setError,
   getErrors,
-  removeErrorMessages
+  removeErrorMessages,
 } from '../model/message.js';
 import { tr } from '../locale/locale.js';
 import { setState } from '../model/uistate.js';
@@ -22,9 +22,8 @@ const validateValue = (key, value) => {
       temp.push(result.url);
       // проверим поток на дублирование
       urlsSchema.validate({ urls: temp }, { abortEarly: false })
-        .then(() =>
-          // список RSS-потоков пополнился новым фидом
-          addRSSFeed(result.url))
+        // список RSS-потоков пополнился новым фидом
+        .then(() => addRSSFeed(result.url))
         .catch((reason) => setError(key, reason.inner[0].errors[0]));
     })
     .catch((reason) => setError(key, reason.inner[0].errors[0]));
@@ -52,7 +51,7 @@ const watchedState = onChange(
     } else if (path === 'proxy-check.proxy') {
       rss.proxy = value;
     }
-  }
+  },
 );
 
 const setWatcher = () => {
@@ -109,7 +108,7 @@ const setModalInfo = () => {
   modalDlg?.addEventListener('show.bs.modal', (evt) => {
     const guid = evt.relatedTarget.dataset.id;
     const feed = rss.feeds[rss.currFeed];
-    const post = feed.posts.filter((post) => post.guid === guid)[0];
+    const post = feed.posts.filter((item) => item.guid === guid)[0];
     document.getElementById('modal-body-title').textContent = post.title;
     document.getElementById('modal-body-descr').textContent = post.descr;
     document.getElementById('modal-header').textContent = feed.title;
@@ -139,4 +138,9 @@ const setHandlesForFeedList = () => {
   }
 };
 
-export { handleFormSubmit, setWatcher, setModalInfo, setHandlesForFeedList };
+export {
+  handleFormSubmit,
+  setWatcher,
+  setModalInfo,
+  setHandlesForFeedList
+};

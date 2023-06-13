@@ -1,16 +1,12 @@
-//@ts-ignore
+// @ts-ignore
 
 // сообщения об ошибках для елемента
-const errors = {
-  ['url-input']: '',
-};
+const errors = {};
 
 // описание блока с ошибкой для элемента
-const errDescrs = {
+const getErrDescrs = () => ({
   ['url-input']: 'url-error',
-};
-
-const getErrDescrs = () => errDescrs;
+});
 
 const setError = (key, error) => {
   errors[key] = error;
@@ -23,10 +19,10 @@ const setMessage = (key, error = true) => {
   const p = document.createElement('p');
   p.classList.add(
     error ? 'text-warning' : 'text-success',
-    'feedback' ,
+    'feedback',
     'm-0',
     'position-absolute',
-    'small'
+    'small',
   );
   p.textContent = getErrors()[key];
   // добавим текущее сообщение об ошибке для элемента
@@ -41,9 +37,15 @@ const setMessage = (key, error = true) => {
 const removeErrorMessages = (key) => {
   const div = document.getElementById(getErrDescrs()[key]);
   // удалим предыдущие сообщения об ошибке для элемента формы
-  while(div?.firstChild) {
+  while (div?.firstChild) {
     div.removeChild(div.firstChild);
   }
 };
 
-export { setMessage, setError, getErrDescrs, getErrors, removeErrorMessages };
+export {
+  setMessage,
+  setError,
+  getErrDescrs,
+  getErrors,
+  removeErrorMessages
+};
