@@ -142,5 +142,5 @@ export {
   handleFormSubmit,
   setWatcher,
   setModalInfo,
-  setHandlesForFeedList
+  setHandlesForFeedList,
 };

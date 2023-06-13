@@ -1,5 +1,5 @@
-import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import '../../node_modules/bootstrap/dist/js/bootstrap.bundle.js';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.js';
 import { handleFormSubmit, setWatcher, setModalInfo } from './controller/controller.js';
 import { getFeedContainerElements } from './view/feedsView.js';
 import getMainView from './view/mainView.js';

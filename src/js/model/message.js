@@ -47,5 +47,5 @@ export {
   setError,
   getErrDescrs,
   getErrors,
-  removeErrorMessages
+  removeErrorMessages,
 };

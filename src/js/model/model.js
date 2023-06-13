@@ -7,7 +7,7 @@ import { setMessage, setError } from './message.js';
 import { tr } from '../locale/locale.js';
 import { setState } from './uistate.js';
 import {cleanFeedsList, cleanPostsList, genFeedsListHTML, genPostsListHTML } from '../view/feedsandposts.js';
-
+ 
 const rssCheckPeriod = 4900;
 
 /**
@@ -28,103 +28,6 @@ const rss = {
 };
 
 const getItemElementByTagName = (item, name, index = 0) => item.getElementsByTagName(name)[index];
-
-/**
- * Чтение данных потока и парсинг
- * @param {string} url интернет-адрес потока
- * @returns {Promise} распарсенный поток или ошибка
- */
-const getFeed = (url) => {
-  return new Promise((resolve, reject) => {
-    axios({
-      method: 'get',
-      url: rss.proxy ?
-        `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}` :
-        url,
-      responseType: 'json',
-    })
-      .then((result) => {
-        if (result.data.contents.includes('<?xml')) {
-          const feed = parseRSSFeed(url, result.data.contents);
-          resolve(feed);
-        } else {
-          // ресурс не содержит RSS-контент
-          console.log(result.data.contents);
-          throw({
-            message: tr('valid_address'),
-          });
-        }
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
-};
-
-/**
- * Функция запускает проверку добаленных потоков на предмет новых постов
- * @param {number} timeOut задержка в милисекундах
- */
-const timerFeedsCheck = (timeOut = rssCheckPeriod) => {
-  setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
-};
-
-/**
- * Отслеживание обновлений постов для добавленных rss-потоков
- * @param {array} feeds список потоков
- * @param {number} index  номер текущего потока
- * @param {number} currFeed номер потока, посты которого отображаются на странице
- */
-const checkFeedsState = (feeds, index, currFeed) => {
-  if (index === feeds.length) {
-    timerFeedsCheck();
-    return;
-  }
-  const feed = feeds[index];
-  // url-список постов фида
-  const oldUrls = feed.urls;
-  getFeed(feed.url)
-    .then((result) => {
-      // обновленый url-список постов фида
-      const newUrls = result.urls;
-      const diffUrls = _.difference(newUrls, oldUrls);
-      if (diffUrls.length > 0) {
-        // список новых постов фида
-        const newPosts = result.posts.filter((post) => diffUrls.indexOf(post.href) > -1);
-        for (const post of newPosts) {
-          feed.posts.push(post);
-          setState(feed.guid, post.guid);
-        }
-        if (index === currFeed) {
-          // обновим список постов
-          genPostsListHTML(newPosts, 'afterbegin');
-        }
-      } else {
-        console.log(feed.title, `:  ${tr('nothing_new')}`);
-      }
-      checkFeedsState(feeds, index + 1, currFeed);
-    })
-    .catch((error) => {
-      console.log(error.message);
-      checkFeedsState(feeds, index + 1, currFeed);
-    });
-};
-
-/**
- * Парсинг описания поста, если описание содержит элементы разметки
- * или просто возврат содержимого описания в противном случае
- * @param {DOMParser} parser
- * @param {string} description описание поста
- * @returns текстовую часть описания
- */
-const parseDescription = (parser, description) => {
-  const doc = parser.parseFromString(description.textContent, 'text/html');
-  const items = doc.getElementsByTagName('p');
-  if (items.length === 0) {
-    return doc.body.textContent;
-  }
-  return items[0].textContent;
-};
 
 /**
  * 
@@ -161,6 +64,99 @@ const parseRSSFeed = (url, contents) => {
     });
   }
   return feed;
+};
+
+/**
+ * Чтение данных потока и парсинг
+ * @param {string} url интернет-адрес потока
+ * @returns {Promise} распарсенный поток или ошибка
+ */
+const getFeed = (url) => new Promise((resolve, reject) => {
+  axios({
+    method: 'get',
+    url: rss.proxy
+      ? `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`
+      : url,
+    responseType: 'json',
+  })
+    .then((result) => {
+      if (result.data.contents.includes('<?xml')) {
+        const feed = parseRSSFeed(url, result.data.contents);
+        resolve(feed);
+      } else {
+        // ресурс не содержит RSS-контент
+        console.log(result.data.contents);
+        throw new Error(tr('valid_address'));
+      }
+    })
+    .catch((error) => {
+      reject(error);
+    });
+});
+
+/**
+ * Отслеживание обновлений постов для добавленных rss-потоков
+ * @param {array} feeds список потоков
+ * @param {number} index  номер текущего потока
+ * @param {number} currFeed номер потока, посты которого отображаются на странице
+ */
+const checkFeedsState = (feeds, index, currFeed) => {
+  if (index === feeds.length) {
+    timerFeedsCheck();
+    return;
+  }
+  const feed = feeds[index];
+  // url-список постов фида
+  const oldUrls = feed.urls;
+  getFeed(feed.url)
+    .then((result) => {
+      // обновленый url-список постов фида
+      const newUrls = result.urls;
+      const diffUrls = _.difference(newUrls, oldUrls);
+      if (diffUrls.length > 0) {
+        // список новых постов фида
+        const newPosts = result.posts.filter((post) => diffUrls.indexOf(post.href) > -1);
+        for (const post of newPosts) {
+          feed.posts.push(post);
+          setState(feed.guid, post.guid);
+        }
+        if (index === currFeed) {
+          // обновим список постов
+          genPostsListHTML(newPosts, 'afterbegin');
+        }
+      } else {
+        console.log(feed.title, `: ${tr('nothing_new')}`);
+      }
+      checkFeedsState(feeds, index + 1, currFeed);
+    })
+    .catch((error) => {
+      console.log(error.message);
+      checkFeedsState(feeds, index + 1, currFeed);
+    });
+};
+
+/**
+ * Функция запускает проверку добаленных потоков на предмет новых постов
+ * @param {number} timeOut задержка в милисекундах
+ */
+const timerFeedsCheck = (timeOut = rssCheckPeriod) => {
+  setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
+};
+
+/**
+ * Парсинг описания поста, если описание содержит элементы разметки
+ * или просто возврат содержимого описания в противном случае
+ * @param {DOMParser} parser
+ * @param {string} description описание поста
+ * @returns текстовую часть описания
+ */
+const parseDescription = (parser, description) => {
+  const doc = parser.parseFromString(description.textContent, 'text/html');
+  const items = doc.getElementsByTagName('p');
+  if (items.length === 0) {
+    return doc.body.textContent;
+  }
+  return items[0].textContent;
 };
 
 /**
