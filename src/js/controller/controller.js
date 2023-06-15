@@ -29,15 +29,17 @@ const validateValue = (key, value) => {
     .catch((reason) => setError(key, reason.inner[0].errors[0]));
 };
 
-const watchedState = onChange(
-  {
-    ['url-input']: {
-      value: '',
-    },
-    ['proxy-check']: {
-      proxy: true,
-    },
+const getInitState = () => ({
+  ['url-input']: {
+    value: '',
   },
+  ['proxy-check']: {
+    proxy: true,
+  },
+});
+
+const watchedState = onChange(
+  getInitState(),
   (path, value) => {
     const key = path.slice(0, path.indexOf('.'));
     if (path === 'url-input.value') {

@@ -6,8 +6,13 @@ import { setHandlesForFeedList } from '../controller/controller.js';
 import { setMessage, setError } from './message.js';
 import { tr } from '../locale/locale.js';
 import { setState } from './uistate.js';
-import {cleanFeedsList, cleanPostsList, genFeedsListHTML, genPostsListHTML } from '../view/feedsandposts.js';
- 
+import {
+  cleanFeedsList,
+  cleanPostsList,
+  genFeedsListHTML,
+  genPostsListHTML
+} from '../view/feedsandposts.js';
+
 const rssCheckPeriod = 4900;
 
 /**
@@ -30,7 +35,23 @@ const rss = {
 const getItemElementByTagName = (item, name, index = 0) => item.getElementsByTagName(name)[index];
 
 /**
- * 
+ * Парсинг описания поста, если описание содержит элементы разметки
+ * или просто возврат содержимого описания в противном случае
+ * @param {DOMParser} parser
+ * @param {string} description описание поста
+ * @returns текстовую часть описания
+ */
+const parseDescription = (parser, description) => {
+  const doc = parser.parseFromString(description.textContent, 'text/html');
+  const items = doc.getElementsByTagName('p');
+  if (items.length === 0) {
+    return doc.body.textContent;
+  }
+  return items[0].textContent;
+};
+
+/**
+ *
  * @param {string} url адрес фида
  * @param {string} contents содержимое фида
  * @returns {feed} сущность типа feed
@@ -95,6 +116,14 @@ const getFeed = (url) => new Promise((resolve, reject) => {
 });
 
 /**
+ * Функция запускает проверку добаленных потоков на предмет новых постов
+ * @param {number} timeOut задержка в милисекундах
+ */
+const timerFeedsCheck = (timeOut = rssCheckPeriod) => {
+  setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
+};
+
+/**
  * Отслеживание обновлений постов для добавленных rss-потоков
  * @param {array} feeds список потоков
  * @param {number} index  номер текущего потока
@@ -133,30 +162,6 @@ const checkFeedsState = (feeds, index, currFeed) => {
       console.log(error.message);
       checkFeedsState(feeds, index + 1, currFeed);
     });
-};
-
-/**
- * Функция запускает проверку добаленных потоков на предмет новых постов
- * @param {number} timeOut задержка в милисекундах
- */
-const timerFeedsCheck = (timeOut = rssCheckPeriod) => {
-  setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
-};
-
-/**
- * Парсинг описания поста, если описание содержит элементы разметки
- * или просто возврат содержимого описания в противном случае
- * @param {DOMParser} parser
- * @param {string} description описание поста
- * @returns текстовую часть описания
- */
-const parseDescription = (parser, description) => {
-  const doc = parser.parseFromString(description.textContent, 'text/html');
-  const items = doc.getElementsByTagName('p');
-  if (items.length === 0) {
-    return doc.body.textContent;
-  }
-  return items[0].textContent;
 };
 
 /**

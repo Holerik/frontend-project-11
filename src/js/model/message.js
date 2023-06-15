@@ -4,9 +4,15 @@
 const errors = {};
 
 // описание блока с ошибкой для элемента
-const getErrDescrs = () => ({
-  ['url-input']: 'url-error',
-});
+const getErrDescrs = (key) => {
+  const dummy = '';
+  switch (key) {
+  case 'url-input':
+    return 'url-error';
+  default:
+    return dummy;
+  }
+};
 
 const setError = (key, error) => {
   errors[key] = error;
@@ -26,7 +32,7 @@ const setMessage = (key, error = true) => {
   );
   p.textContent = getErrors()[key];
   // добавим текущее сообщение об ошибке для элемента
-  const div = document.getElementById(getErrDescrs()[key]);
+  const div = document.getElementById(getErrDescrs(key));
   div?.appendChild(p);
   if (error) {
     // нарисуем красную рамку вокруг элемента
@@ -35,7 +41,7 @@ const setMessage = (key, error = true) => {
 };
 
 const removeErrorMessages = (key) => {
-  const div = document.getElementById(getErrDescrs()[key]);
+  const div = document.getElementById(getErrDescrs(key));
   // удалим предыдущие сообщения об ошибке для элемента формы
   while (div?.firstChild) {
     div.removeChild(div.firstChild);
@@ -45,7 +51,6 @@ const removeErrorMessages = (key) => {
 export {
   setMessage,
   setError,
-  getErrDescrs,
   getErrors,
   removeErrorMessages,
 };
