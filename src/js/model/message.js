@@ -7,10 +7,10 @@ const errors = {};
 const getErrDescrs = (key) => {
   const dummy = '';
   switch (key) {
-  case 'url-input':
-    return 'url-error';
-  default:
-    return dummy;
+    case 'url-input':
+      return 'url-error';
+    default:
+      return dummy;
   }
 };
 

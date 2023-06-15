@@ -29,14 +29,12 @@ const validateValue = (key, value) => {
     .catch((reason) => setError(key, reason.inner[0].errors[0]));
 };
 
-const getInitState = () => ({
-  ['url-input']: {
-    value: '',
-  },
-  ['proxy-check']: {
-    proxy: true,
-  },
-});
+const getInitState = () => {
+  const res = {};
+  res['url-input'] = { value: '' };
+  res['proxy-check'] = { proxy: true };
+  return res;
+};
 
 const watchedState = onChange(
   getInitState(),
@@ -135,9 +133,9 @@ const handleSelectFeed = (evt) => {
 
 const setHandlesForFeedList = () => {
   const feedElements = document.getElementsByClassName('feed-link');
-  for (const elem of feedElements) {
+  Array.from(feedElements).forEach((elem) => {
     elem.addEventListener('click', handleSelectFeed);
-  }
+  });
 };
 
 export {

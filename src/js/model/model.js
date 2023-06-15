@@ -10,7 +10,7 @@ import {
   cleanFeedsList,
   cleanPostsList,
   genFeedsListHTML,
-  genPostsListHTML
+  genPostsListHTML,
 } from '../view/feedsandposts.js';
 
 const rssCheckPeriod = 4900;
@@ -145,10 +145,10 @@ const checkFeedsState = (feeds, index, currFeed) => {
       if (diffUrls.length > 0) {
         // список новых постов фида
         const newPosts = result.posts.filter((post) => diffUrls.indexOf(post.href) > -1);
-        for (const post of newPosts) {
+        Array.from(newPosts).forEach((post) => {
           feed.posts.push(post);
           setState(feed.guid, post.guid);
-        }
+        });
         if (index === currFeed) {
           // обновим список постов
           genPostsListHTML(newPosts, 'afterbegin');
