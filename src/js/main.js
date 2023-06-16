@@ -4,7 +4,7 @@ import { handleFormSubmit, setWatcher, setModalInfo } from './controller/control
 import { getFeedContainerElements } from './view/feedsView.js';
 import getMainView from './view/mainView.js';
 import getFooterView from './view/footerView';
-import { timerFeedsCheck } from './model/model.js';
+import { rss, checkFeedsState } from './model/model.js';
 import genModalDialog from './view/modalView.js';
 
 const body = document.getElementById('body');
@@ -20,4 +20,4 @@ const feedContainerElem = document.getElementById('feed-container');
 feedContainerElem.insertAdjacentHTML('afterbegin', getFeedContainerElements());
 setWatcher();
 setModalInfo();
-timerFeedsCheck();
+checkFeedsState(rss.feeds, 0, rss.currFeed);

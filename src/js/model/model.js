@@ -13,7 +13,7 @@ import {
   genPostsListHTML,
 } from '../view/feedsandposts.js';
 
-const rssCheckPeriod = 4900;
+const rssCheckPeriod = 5000;
 
 /**
  * Список потоков
@@ -116,22 +116,15 @@ const getFeed = (url) => new Promise((resolve, reject) => {
 });
 
 /**
- * Функция запускает проверку добаленных потоков на предмет новых постов
- * @param {number} timeOut задержка в милисекундах
- */
-const timerFeedsCheck = (timeOut = rssCheckPeriod) => {
-  setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
-};
-
-/**
  * Отслеживание обновлений постов для добавленных rss-потоков
  * @param {array} feeds список потоков
  * @param {number} index  номер текущего потока
  * @param {number} currFeed номер потока, посты которого отображаются на странице
+ * @param {number} timeOut задержка в милисекундах
  */
-const checkFeedsState = (feeds, index, currFeed) => {
+const checkFeedsState = (feeds, index, currFeed, timeOut = rssCheckPeriod) => {
   if (index === feeds.length) {
-    timerFeedsCheck();
+    setTimeout(() => checkFeedsState(rss.feeds, 0, rss.currFeed), timeOut);
     return;
   }
   const feed = feeds[index];
@@ -195,4 +188,4 @@ const addRSSFeed = (url) => {
     });
 };
 
-export { rss, addRSSFeed, timerFeedsCheck };
+export { rss, addRSSFeed, checkFeedsState };
