@@ -3,7 +3,6 @@ import '../../css/styles.css';
 import onChange from 'on-change';
 import { urlSchema, urlsSchema } from '../model/schemes.js';
 import { rss, addRSSFeed } from '../model/model.js';
-import { cleanPostsList, genPostsListHTML } from '../view/feedsandposts.js';
 import {
   setMessage,
   setError,
@@ -121,26 +120,8 @@ const setModalInfo = () => {
   });
 };
 
-const handleSelectFeed = (evt) => {
-  const guid = evt.target.dataset.id;
-  const selFeed = rss.feeds.findIndex((feed) => feed.guid === guid);
-  if (selFeed !== rss.currFeed) {
-    rss.currFeed = selFeed;
-    cleanPostsList();
-    genPostsListHTML(rss.feeds[rss.currFeed].posts);
-  }
-};
-
-const setHandlesForFeedList = () => {
-  const feedElements = document.getElementsByClassName('feed-link');
-  Array.from(feedElements).forEach((elem) => {
-    elem.addEventListener('click', handleSelectFeed);
-  });
-};
-
 export {
   handleFormSubmit,
   setWatcher,
   setModalInfo,
-  setHandlesForFeedList,
 };

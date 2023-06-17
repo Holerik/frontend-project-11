@@ -2,7 +2,6 @@
 import axios from 'axios';
 import _ from 'lodash';
 import { Guid } from 'js-guid';
-import { setHandlesForFeedList } from '../controller/controller.js';
 import { setMessage, setError } from './message.js';
 import { tr } from '../locale/locale.js';
 import { setState } from './uistate.js';
@@ -75,7 +74,7 @@ const parseRSSFeed = (url, contents) => {
   feed.title = getItemElementByTagName(channel, 'title').textContent;
   feed.descr = getItemElementByTagName(channel, 'description').textContent;
   const postItems = channel.getElementsByTagName('item');
-  for (const item of postItems) {
+  Array.from(postItems).forEach((item) => {
     feed.posts.push({
       guid: Guid.newGuid().toString(),
       feed_guid: feed.guid,
@@ -83,7 +82,7 @@ const parseRSSFeed = (url, contents) => {
       descr: parseDescription(parser, getItemElementByTagName(item, 'description')),
       href: getItemElementByTagName(item, 'link').textContent,
     });
-  }
+  });
   return feed;
 };
 
@@ -139,7 +138,7 @@ const checkFeedsState = (feeds, index, currFeed, timeOut = rssCheckPeriod) => {
         // список новых постов фида
         const newPosts = result.posts.filter((post) => diffUrls.indexOf(post.href) > -1);
         Array.from(newPosts).forEach((post) => {
-          feed.posts.push(post);
+          feed.posts.unshift(post);
           setState(feed.guid, post.guid);
         });
         if (index === currFeed) {
@@ -152,9 +151,26 @@ const checkFeedsState = (feeds, index, currFeed, timeOut = rssCheckPeriod) => {
       checkFeedsState(feeds, index + 1, currFeed);
     })
     .catch((error) => {
-      console.log(error.message);
+      console.log(feed.title, ` : ${error.message}`);
       checkFeedsState(feeds, index + 1, currFeed);
     });
+};
+
+const handleSelectFeed = (evt) => {
+  const guid = evt.target.dataset.id;
+  const selFeed = rss.feeds.findIndex((feed) => feed.guid === guid);
+  if (selFeed !== rss.currFeed) {
+    rss.currFeed = selFeed;
+    cleanPostsList();
+    genPostsListHTML(rss.feeds[rss.currFeed].posts);
+  }
+};
+
+const setHandlesForFeedList = () => {
+  const feedElements = document.getElementsByClassName('feed-link');
+  Array.from(feedElements).forEach((elem) => {
+    elem.addEventListener('click', handleSelectFeed);
+  });
 };
 
 /**
